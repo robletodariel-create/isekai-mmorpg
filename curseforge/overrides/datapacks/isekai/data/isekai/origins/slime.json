@@ -1,0 +1,11 @@
+{
+  "powers": [],
+  "icon": "minecraft:slime_ball",
+  "order": 5,
+  "name": {
+    "text": "Slime"
+  },
+  "description": {
+    "text": "Raza especial gelatinosa. Mecánicas únicas relacionadas con saltos y resistencia al daño."
+  }
+}
