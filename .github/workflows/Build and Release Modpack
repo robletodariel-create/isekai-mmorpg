@@ -1,0 +1,75 @@
+name: Build and Release Modpack
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Make scripts executable
+        run: |
+          chmod +x build_modpack.py || true
+          chmod +x build_zip.sh || true
+
+      - name: Build modpack ZIP (CurseForge)
+        run: |
+          python3 build_modpack.py
+
+      - name: Build datapack ZIP (from curseforge overrides)
+        run: |
+          # build_zip.sh expects datapack/isekai but repository keeps files under curseforge/overrides/datapacks/isekai
+          set -e
+          if [ -d "curseforge/overrides/datapacks/isekai" ]; then
+            cd curseforge/overrides/datapacks/isekai
+            zip -r "../../../../isekai_races_v0.1.zip" pack.mcmeta data || true
+            cd -
+          else
+            echo "No se encontró curseforge/overrides/datapacks/isekai — saltando creación de datapack ZIP"
+          fi
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: isekai-v${{ github.run_number }}
+          release_name: Isekai Races v${{ github.run_number }}
+          body: |
+            Release creado automáticamente por workflow. Incluye los ZIPs del modpack/curseforge y del datapack.
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload CurseForge ZIP
+        if: ${{ always() && (github.workspace && (steps.create_release.outputs.upload_url != '')) }}
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./isekai_races_v0.1_curseforge.zip
+          asset_name: isekai_races_v0.1_curseforge.zip
+          asset_content_type: application/zip
+
+      - name: Upload Datapack ZIP
+        if: ${{ always() && (github.workspace && (steps.create_release.outputs.upload_url != '')) }}
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./isekai_races_v0.1.zip
+          asset_name: isekai_races_v0.1.zip
+          asset_content_type: application/zip
+
+      - name: Output release URL
+        run: |
+          echo "Release published: ${{ steps.create_release.outputs.html_url }}"
