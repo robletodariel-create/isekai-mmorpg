@@ -1,0 +1,20 @@
+{
+  "manifestType": "minecraftModpack",
+  "manifestVersion": 1,
+  "minecraft": {
+    "version": "1.21.1",
+    "modLoaders": [
+      {
+        "id": "fabric-loader-0.16.5",
+        "primary": true
+      }
+    ]
+  },
+  "name": "Isekai MMORPG - Sistema de Razas",
+  "version": "0.1.0",
+  "author": "DarielTh3Gamer",
+  "description": "Modpack MMORPG/Isekai para Minecraft 1.21.1 Fabric + Origins. Sistema V0.1 con 5 razas jugables: Humano, Goblin, Beastkin, Orco y Slime.",
+  "projectID": 0,
+  "files": [],
+  "overrides": "overrides"
+}
