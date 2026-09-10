@@ -1,0 +1,11 @@
+{
+  "powers": [],
+  "icon": "minecraft:lime_dye",
+  "order": 2,
+  "name": {
+    "text": "Goblin"
+  },
+  "description": {
+    "text": "Raza pequeña y rápida. Mayor velocidad a cambio de menor resistencia."
+  }
+}
