@@ -1,12 +1,33 @@
 #!/bin/bash
 set -e
-echo "📦 Generando isekai_races_v0.1.zip desde curseforge/overrides/datapacks/isekai..."
-cd curseforge/overrides/datapacks/isekai
-if [ ! -f "pack.mcmeta" ] || [ ! -d "data" ]; then
-  echo "❌ pack.mcmeta o data/ no encontrado en curseforge/overrides/datapacks/isekai"
+echo "📦 Generando isekai_races_v0.1.zip (datapack)..."
+
+# Preferimos usar curseforge/overrides/datapacks/isekai si existe, si no, datapack/isekai
+if [ -d "curseforge/overrides/datapacks/isekai" ]; then
+  SRC="curseforge/overrides/datapacks/isekai"
+elif [ -d "datapack/isekai" ]; then
+  SRC="datapack/isekai"
+else
+  echo "❌ No se encontró datapack en curseforge/overrides/datapacks/isekai ni en datapack/isekai"
   exit 1
 fi
-zip -r ../../../../isekai_races_v0.1.zip pack.mcmeta data
-echo "✓ isekai_races_v0.1.zip creado en la raíz del repo"
-echo "3. Ejecuta: /reload"
-echo "4. ¡Disfruta de las razas!"
+
+echo "Usando fuente: $SRC"
+
+if [ ! -f "$SRC/pack.mcmeta" ] || [ ! -d "$SRC/data" ]; then
+  echo "❌ pack.mcmeta o data/ no encontrado en $SRC"
+  exit 1
+fi
+
+# Crear ZIP en la raíz del repo
+OUT="../../isekai_races_v0.1.zip"
+if [ "$SRC" = "datapack/isekai" ]; then
+  OUT="../isekai_races_v0.1.zip"
+fi
+
+# Asegurar ruta absoluta para evitar problemas con pushd/popd
+pushd "$SRC" > /dev/null
+zip -r "$OUT" pack.mcmeta data
+popd > /dev/null
+
+echo "✓ isekai_races_v0.1.zip creado: $OUT"
