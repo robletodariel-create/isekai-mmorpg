@@ -1,0 +1,11 @@
+{
+  "powers": [],
+  "icon": "minecraft:player_head",
+  "order": 1,
+  "name": {
+    "text": "Humano"
+  },
+  "description": {
+    "text": "La raza equilibrada. Sin bonificaciones extremas ni debilidades significativas."
+  }
+}
