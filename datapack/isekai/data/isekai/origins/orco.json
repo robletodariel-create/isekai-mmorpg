@@ -1,0 +1,11 @@
+{
+  "powers": [],
+  "icon": "minecraft:iron_axe",
+  "order": 4,
+  "name": {
+    "text": "Orco"
+  },
+  "description": {
+    "text": "Raza fuerte y resistente. Mayor fuerza y resistencia a cambio de menor velocidad."
+  }
+}
