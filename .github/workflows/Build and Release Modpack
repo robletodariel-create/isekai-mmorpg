@@ -24,20 +24,45 @@ jobs:
           chmod +x build_modpack.py || true
           chmod +x build_zip.sh || true
 
+      - name: Debug repo contents
+        run: |
+          echo "=== CWD ==="
+          pwd
+          echo "=== List root ==="
+          ls -la
+          echo "=== List curseforge overrides ==="
+          ls -la curseforge/overrides/datapacks/isekai || true
+          echo "=== Show curseforge/manifest.json ==="
+          if [ -f curseforge/manifest.json ]; then
+            echo "--- manifest.json ---"
+            sed -n '1,200p' curseforge/manifest.json
+            echo "---------------------"
+          else
+            echo "manifest.json NO existe en curseforge/manifest.json"
+          fi
+          echo "=== Python ==="
+          python3 --version
+          echo "=== PWD tree (first 200 lines) ==="
+          find . -maxdepth 4 -print | head -n 200
+
       - name: Build modpack ZIP (CurseForge)
         run: |
           python3 build_modpack.py
 
       - name: Build datapack ZIP (from curseforge overrides)
         run: |
-          # build_zip.sh expects datapack/isekai but repository keeps files under curseforge/overrides/datapacks/isekai
-          set -e
           if [ -d "curseforge/overrides/datapacks/isekai" ]; then
-            cd curseforge/overrides/datapacks/isekai
-            zip -r "../../../../isekai_races_v0.1.zip" pack.mcmeta data || true
-            cd -
+            echo "Creating datapack ZIP from curseforge/overrides/datapacks/isekai..."
+            pushd curseforge/overrides/datapacks/isekai
+            zip -r ../../../../isekai_races_v0.1.zip pack.mcmeta data || true
+            popd
+          elif [ -d "datapack/isekai" ]; then
+            echo "Creating datapack ZIP from datapack/isekai..."
+            pushd datapack/isekai
+            zip -r ../../isekai_races_v0.1.zip pack.mcmeta data || true
+            popd
           else
-            echo "No se encontró curseforge/overrides/datapacks/isekai — saltando creación de datapack ZIP"
+            echo "No datapack source found; skipping datapack ZIP creation"
           fi
 
       - name: Create GitHub Release
@@ -52,23 +77,27 @@ jobs:
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload CurseForge ZIP
-        if: ${{ always() && (github.workspace && (steps.create_release.outputs.upload_url != '')) }}
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./isekai_races_v0.1_curseforge.zip
-          asset_name: isekai_races_v0.1_curseforge.zip
-          asset_content_type: application/zip
+      - name: Upload CurseForge ZIP (if exists)
+        run: |
+          if [ -f isekai_races_v0.1_curseforge.zip ]; then
+            echo "Uploading isekai_races_v0.1_curseforge.zip"
+            gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} isekai_races_v0.1_curseforge.zip
+          else
+            echo "CurseForge ZIP not found; skipping upload"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Datapack ZIP
-        if: ${{ always() && (github.workspace && (steps.create_release.outputs.upload_url != '')) }}
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./isekai_races_v0.1.zip
-          asset_name: isekai_races_v0.1.zip
-          asset_content_type: application/zip
+      - name: Upload Datapack ZIP (if exists)
+        run: |
+          if [ -f isekai_races_v0.1.zip ]; then
+            echo "Uploading isekai_races_v0.1.zip"
+            gh release upload --clobber ${{ steps.create_release.outputs.tag_name }} isekai_races_v0.1.zip
+          else
+            echo "Datapack ZIP not found; skipping upload"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Output release URL
         run: |
