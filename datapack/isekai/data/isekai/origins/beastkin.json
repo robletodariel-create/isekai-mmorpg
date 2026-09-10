@@ -1,0 +1,11 @@
+{
+  "powers": [],
+  "icon": "minecraft:wolf_spawn_egg",
+  "order": 3,
+  "name": {
+    "text": "Beastkin"
+  },
+  "description": {
+    "text": "Raza animal humanoide. Sentidos animales mejorados y mayor agilidad."
+  }
+}
